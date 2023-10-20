@@ -74,8 +74,9 @@ Parameter | Type
 title| string
 linkImage| string
 category| string
-review| date?: Date ;  evaluator?: Types.ObjectId; score?: number; note: string
-
+review| date?: Date ;  evaluator?: Types.ObjectId; score?: number; note: string;
+author| Types.ObjectId 
+notice| Types.ObjectId
 **Object Professor**:
 
 The "Professor" object represents a teacher or professor in an educational system
@@ -108,6 +109,17 @@ cpf| string
 draws| Types.ObjectId[]
 id?| string
 loginId?| Types.ObjectId
+
+**Object Notice**
+The "Notice" object represents the start and end date of event registrations
+
+Parameter | Type
+id?| string
+start_date| string
+final_date| string
+notice_file| string
+draws| Types.ObjectId
+
 
 <hr>
 
