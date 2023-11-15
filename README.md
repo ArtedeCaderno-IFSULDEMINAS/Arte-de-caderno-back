@@ -24,6 +24,8 @@ Backend application for 'Arte de Caderno' website
 #### [School](#School)
 #### [Draws](#Draws)
 #### [Evaluator](#Evaluator)
+#### [Notice](#Notice)
+#### [PublicDraws](#PublicDraws)
 <hr>
 
 ### <a id="Objects">Objects</a>
@@ -77,6 +79,7 @@ category| string
 review| date?: Date ;  evaluator?: Types.ObjectId; score?: number; note: string;
 author| Types.ObjectId 
 notice| Types.ObjectId
+
 **Object Professor**:
 
 The "Professor" object represents a teacher or professor in an educational system
@@ -118,6 +121,14 @@ id?| string
 start_date| string
 final_date| string
 notice_file| string
+draws| Types.ObjectId
+
+
+**Object publicDraws**
+The "publicDraws" object represents drawings that have undergone filtering and can be displayed in public
+
+Parameter | Type
+id?| string
 draws| Types.ObjectId
 
 
