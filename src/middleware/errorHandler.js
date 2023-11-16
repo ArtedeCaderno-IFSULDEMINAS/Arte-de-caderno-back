@@ -8,13 +8,13 @@ async function errorHandler(err, req, res, next) {
   } else if (err instanceof mongoose.Error.ValidationError) {
     res.status(400).json({ message: err.message });
   } else {
-    Log.create({
+    const log = new Log({
       message: err.message,
       stack: err.stack,
       date: new Date(),
       type: LOG_TYPES.ERROR,
     });
-    await Log.save();
+    await log.save();
     res.status(500).json("Internal server error");
   }
 }
