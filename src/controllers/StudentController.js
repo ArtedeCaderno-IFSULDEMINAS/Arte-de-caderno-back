@@ -50,6 +50,13 @@ class StudentController {
       password,
     } = req.body;
 
+    if(!name || !date_of_birth || !cpf || !phone || !address || !city || !uf || !email || !schoolId || !password){
+      return res
+        .status(400)
+        .json({message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED})
+    }
+
+
     const loginExists = await Login.findOne({ username: cpf });
 
     if (loginExists !== null) {
