@@ -13,6 +13,7 @@ export const ERROR_MESSAGE = {
     DELETED: 'Deleted',
     ALL_FIELDS_REQUIRED: 'All fields are required',
     SCHOOL_NOT_FOUND: 'School not found',
+    SAVE_DOCUMENT_ERROR: 'Error at save documents in database'
 }
 
 export const EVENT_MESSAGES = {
