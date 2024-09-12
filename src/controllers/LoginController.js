@@ -20,6 +20,33 @@ class LoginController {
         }
     }
 
+    sendEmail = async(username, email) => {
+        const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+        const codeGeneratedAt = new Date();
+
+        const updateCode = { 
+            code2factor: code,
+            createdAt: codeGeneratedAt,
+            //email:email
+        }; //modificar o codigo de 2 fatores
+
+        await Login.findOneAndUpdate({ username: username}, updateCode);
+
+        const mailSent = await transporter.sendMail({
+            //text: `Seu código de verificação é:  ${code}`,
+            subject: 'Código de Autenticação Arte de Caderno', //remover estudante depois, apenas para teste
+            from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
+            to: email,
+            html: `<p>Seu código de autenticação é:</p>
+            <p style="color: tomato; font-size: 25px; letter-spacing: 2px;">
+              <b>${code}</b>
+            </p>
+            <p><b>Código expira em 10 minutos</b>.</p>`
+
+        });
+        //console.log(mailSent);
+    }
+
     logar = async (req, res, next) => {
         const loginReq = new Login(req.body);
         try {
@@ -37,105 +64,31 @@ class LoginController {
                     const { email } = await this.getProfessorByLoginId(userLogin._id);
                     //const { email } = await this.getStudentByLoginId(userLogin._id);
 
-                    async function sendEmail() {
-                        const code = crypto.randomBytes(4).toString('hex').toUpperCase();
-                        const codeGeneratedAt = new Date();
-
-                        
-                        const updateCode = { 
-                            code2factor:  code, 
-                            createdAt:codeGeneratedAt,
-                            email:email
-                         }; //modificar o codigo de 2 fatores
-
-                        await Login.findOneAndUpdate({ username: loginReq.username }, updateCode); //realizar o update no banco campo codigo
-
-                        const mailSent = await transporter.sendMail({
-                            //text: `Seu código de verificação é:  ${code}`,
-                            subject: 'Código de Autenticação Arte de Caderno',
-                            from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
-                            to: email,
-                            html: `<p>Seu código de autenticação é:</p>
-                            <p style="color: tomato; font-size: 25px; letter-spacing: 2px;">
-                              <b>${code.toUpperCase()}</b>
-                            </p>
-                            <p><b>Código expira em 10 minutos</b>.</p>`
-
-                        });
-                        //console.log(mailSent);
-                    }
-                    sendEmail();
+                    
+                    this.sendEmail(userLogin.username, email);
 
                     return res.status(200).json({ message: '2-factor code sent to registered email' });
                 }
                 if ("student" === userLogin.accessType) {
                     const { email } = await this.getStudentByLoginId(userLogin._id);
 
-                    async function sendEmail() {
-                        const code = crypto.randomBytes(4).toString('hex').toUpperCase();
-                        const codeGeneratedAt = new Date();
-
-                        const updateCode = { 
-                            code2factor: code,
-                            createdAt: codeGeneratedAt,
-                            //email:email
-                        }; //modificar o codigo de 2 fatores
-
-                        await Login.findOneAndUpdate({ username: userLogin.username}, updateCode);
-
-                        const mailSent = await transporter.sendMail({
-                            //text: `Seu código de verificação é:  ${code}`,
-                            subject: 'Código de Autenticação Arte de Caderno', //remover estudante depois, apenas para teste
-                            from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
-                            to: email,
-                            html: `<p>Seu código de autenticação é:</p>
-                            <p style="color: tomato; font-size: 25px; letter-spacing: 2px;">
-                              <b>${code}</b>
-                            </p>
-                            <p><b>Código expira em 10 minutos</b>.</p>`
-
-                        });
-                        //console.log(mailSent);
-                    }
-                    sendEmail();
+                    this.sendEmail(userLogin.username, email);
 
                     return res.status(200).json({ message: '2-factor code sent to registered email' });
                 }
-
                 if ("evaluator" === userLogin.accessType) {
                     const { email } = await this.getEvaluatorByLoginId(userLogin._id);
-                    async function sendEmail() {
-                        const code = crypto.randomBytes(4).toString('hex').toUpperCase();
-                        const codeGeneratedAt = new Date();
-
-                        
-                        const updateCode = {
-                            code2factor:  code, 
-                            createdAt:codeGeneratedAt,
-                            email:email
-                         }; //modificar o codigo de 2 fatores
-
-                        await Login.findOneAndUpdate({ username: loginReq.username }, updateCode); //realizar o update no banco campo codigo
-
-                        const mailSent = await transporter.sendMail({
-                            //text: `Seu código de verificação é:  ${code}`,
-                            subject: 'Código de Autenticação Arte de Caderno',
-                            from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
-                            to: email,
-                            html: `<p>Seu código de autenticação é:</p>
-                            <p style="color: tomato; font-size: 25px; letter-spacing: 2px;">
-                              <b>${code.toUpperCase()}</b>
-                            </p>
-                            <p><b>Código expira em 10 minutos</b>.</p>`
-
-                        });
-                        //console.log(mailSent);
-                    }
-                    sendEmail();
+                    
+                    this.sendEmail(userLogin.username,email);
 
                     return res.status(200).json({ message: '2-factor code sent to registered email' });
                 }
+                if("admin" === userLogin.accessType){
+                    
+                    this.sendEmail(userLogin.username, userLogin.email);
 
+                    return res.status(200).json({ message: '2-factor code sent to registered email' });
+                }
             }
             return res.status(400).json({ message: 'Invalid password or username' });
         }
@@ -226,6 +179,23 @@ class LoginController {
                     let response = {
                         accessType: 'evaluator',
                         user: evaluator,
+                        token: token
+                    };
+
+                    return res.status(200).json(response);
+                }
+
+                if("admin" === userLogin.accessType){
+                    const tokenPayload = {
+                        userId: userLogin.id,
+                        userName: userLogin.username,
+                        email: userLogin.email,
+                        accessType: userLogin.accessType,
+                    };
+                    const token = generateToken(tokenPayload)
+
+                    let response = {
+                        accessType: 'admin',
                         token: token
                     };
 

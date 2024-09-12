@@ -1,7 +1,7 @@
 import Login from "../models/login.js";
-
-
-
+import createHashWithSalt from "../middleware/hashWithSalt.js";
+import Admin from "../models/admin.js";
+import { ERROR_MESSAGE } from "../constants/Messages.js";
 
 class AdminController{
     listAdmin = async(req,res,next) => {
@@ -13,8 +13,6 @@ class AdminController{
             next(err);
         }
     }
-
-
 
     getAdminById = async(req, res, next) => {
         try{
@@ -35,6 +33,57 @@ class AdminController{
         catch(err){
             next(err);
         }
+    }
+
+    createAdmin = async(req, res, next) => {
+        try{
+            const 
+            {
+                username, 
+                password,
+                email
+            } = req.body;
+
+        if(!username|| !password|| !email){
+            return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED});
+        }
+
+        const loginExists = await Login.findOne({username: username})
+
+        if (loginExists !== null) {
+            return res
+              .status(400)
+              .json({ message: ERROR_MESSAGE.USER_ALREADY_EXISTS });
+          }
+        
+          const hashPassword = await createHashWithSalt(password);
+          const login = new Login({
+            username: username,
+            password: hashPassword,
+            accessType: "admin",
+            email: email,
+          });
+
+          const newLogin = await login.save();
+
+          if(newLogin == null){
+           return res.status(400).json({ message: ERROR_MESSAGE.SAVE_DOCUMENT_ERROR});
+          }
+
+          const admin = new Admin({
+            username: username,
+            email: email,
+            loginId: newLogin._id
+          });
+
+          const newAdmin = await admin.save();
+            res.status(201).json(newAdmin); 
+
+        }
+        
+        catch (err) {
+            res.status(400).json({ message: err.message });
+          }
     }
 }
 
