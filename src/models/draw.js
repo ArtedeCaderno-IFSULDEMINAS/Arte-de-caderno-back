@@ -19,7 +19,7 @@ const DrawSchema = new mongoose.Schema(
         classified: {type: Boolean, required: false},
         note: {type: String, required: false},
         author: {type: mongoose.Schema.Types.ObjectId, ref: "student", required: true},
-        novice: {type: mongoose.Schema.Types.ObjectId, ref: "novice", required: true}
+        novice: {type: String, required: true}
     },
     {
         versionKey: false

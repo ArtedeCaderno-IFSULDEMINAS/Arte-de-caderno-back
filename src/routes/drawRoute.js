@@ -13,7 +13,7 @@ drawRoute.get('/draw/all', DrawController.listAllDraws)
         .get('/draw/:id', DrawController.getDrawById)
         .get('/draw/student/:id', DrawController.getDrawByStudent)
         .post('/draw/category', DrawController.getDrawByCategory)
-        .post('/draw', upload.fields([{name: 'image'}, {name: 'title'}, {name: 'author'}, {name: 'cathegory'}]), DrawController.insertDraw)
+        .post('/draw', upload.fields([{name: 'image'}, {name: 'title'}, {name: 'author'}, {name: 'cathegory'}, {name: 'novice'}]), DrawController.insertDraw)
         .post('/draw/desclassified/:id', DrawController.desclassifiedDraw)
         .post('/draw/evaluate/:id', DrawController.evaluateDraw)
         .post('/draw/distribute', DrawController.distributeDraws);
