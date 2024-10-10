@@ -140,9 +140,12 @@ class ProfessorController {
     insertStudentByProfessorId = async (req, res, next) => {
         const {id} = req.params;
         try{
-            const studentReq = new Student(req.body);
+            const {name, date_of_birth, cpf, schoolId, cep, address, city, uf} = req.body;
 
-            const studentExists = await Student.findOne({cpf: studentReq.cpf});
+            if(!name || !date_of_birth || !cpf || !schoolId){
+                return res.status(400).json({message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED});
+            }
+            const studentExists = await Student.findOne({cpf: cpf});
             const professor = await Professor.findById(id);
 
             if(professor === null){
@@ -152,14 +155,25 @@ class ProfessorController {
             if(studentExists !== null){
                 return res.status(400).json({message: ERROR_MESSAGE.USER_ALREADY_EXISTS});
             }
+            
+            const newStudent = new Student({
+                address : address,
+                cep : cep,
+                city : city,
+                cpf : cpf,
+                date_of_birth : date_of_birth,
+                name: name,
+                uf: uf,
+                schoolId: schoolId
+            }
+            )
+            await newStudent.save();
     
-            await studentReq.save();
-    
-            professor.studentsId.push(studentReq._id);
+            professor.studentsId.push(newStudent._id);
 
             await professor.save();
     
-            return res.status(201).json(studentReq);
+            return res.status(201).json(newStudent);
         }
 
         catch(err){
@@ -207,6 +221,19 @@ class ProfessorController {
             next(err);
         }
     }
+
+    // getInfoByProfessorId = async (req, res, next) => {
+    //     const {id} = req.params;
+
+    //     try{
+    //         const professor = await Professor.findById(id);
+
+    //         if(professor === null){
+    //             return res.status(400).json({message: ERROR_MESSAGE.PROFESSOR_NOT_FOUND});
+    //         }
+            
+    //     }
+    // }
 }
 
 export default new ProfessorController;
