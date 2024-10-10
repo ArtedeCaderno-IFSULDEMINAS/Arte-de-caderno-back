@@ -68,8 +68,8 @@ class DrawController {
 
     insertDraw = async (req, res, next) => {
         try {
-            const { title, category, author, novice } = req.body;
-            if(!title || !category || !author ||!novice){
+            const { title, category, author} = req.body;
+            if(!title || !category || !author ){
                 return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED });
             }
 
@@ -88,10 +88,15 @@ class DrawController {
                 category: category,
                 author: author,
                 linkImage: req.files.image[0].filename,
-                novice: novice
+                novice: "2024_01"
             });
 
             await draw.save();
+
+            student.drawsId.push(draw._id);
+
+            await student.save();
+
             return res.status(201).json(draw);
         }
         catch (err) {
