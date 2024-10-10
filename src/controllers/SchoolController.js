@@ -34,6 +34,7 @@ class SchoolController {
             if(name === null || code === null || uf === null || city === null || address === null || cep === null || phone === null){
                 return res.status(400).json({message: 'All fields are required'});
             }
+
             const school = new School({
                 name: name,
                 code: code,
@@ -46,6 +47,12 @@ class SchoolController {
                 site: site
             });
             try{
+                const existSchool = await School.find({code: code})
+
+                if(existSchool.length !== 0){
+                    return res.status(400).json({message: "School Already Exists"})
+                }
+                
                 const newSchool = await school.save();
                 res.status(200).json(newSchool);
             }
