@@ -4,6 +4,7 @@ import School from "../models/school.js";
 import Student from "../models/student.js";
 import createHashWithSalt from "../middleware/hashWithSalt.js";
 import { ERROR_MESSAGE } from "../constants/Messages.js";
+import Draw from "../models/draw.js";
 
 class ProfessorController {
 
@@ -222,18 +223,58 @@ class ProfessorController {
         }
     }
 
-    // getInfoByProfessorId = async (req, res, next) => {
-    //     const {id} = req.params;
-
-    //     try{
-    //         const professor = await Professor.findById(id);
-
-    //         if(professor === null){
-    //             return res.status(400).json({message: ERROR_MESSAGE.PROFESSOR_NOT_FOUND});
-    //         }
+    getInfoByProfessorId = async (req, res, next) => {
+        const {id} = req.params;
+        
+        try{
+            const professor = await Professor.findById(id);
+            if(professor === null){
+                return res.status(400).json({message: ERROR_MESSAGE.PROFESSOR_NOT_FOUND});
+            }
+            var numberOfStudents = professor.studentsId.length;
             
-    //     }
-    // }
+            var numberOfDraws = 0;
+
+            var numberOfDrawsPendent = 0;
+            var numberOfDrawsApproved = 0;
+            var numberOfDrawsReproved = 0;
+
+            for (const studentId of professor.studentsId) {
+                const student = await Student.findById(studentId);
+                if (student) {
+                    numberOfDraws = numberOfDraws + student.drawsId.length;
+
+                    for (const drawId of student.drawsId){
+                        const draw = await Draw.findById(drawId);
+
+                        if(draw.classified == "Pendente"){
+                            numberOfDrawsPendent ++;
+                        }
+
+                        if(draw.classified == "Reprovado"){
+                            numberOfDrawsReproved ++;
+                        }
+
+                        if(draw.classified == "Aprovado"){
+                            numberOfDrawsApproved ++;
+                        }
+                    }
+                }
+            }
+
+            return res.status(200).json({
+                "numberOfStudents": numberOfStudents,
+                "numberOfDraws": numberOfDraws,
+                "numberOfDrawsApproved": numberOfDrawsApproved,
+                "numberOfDrawsPendent": numberOfDrawsPendent,
+                "numberOfDrawsReproved": numberOfDrawsReproved
+            })
+
+        }
+        catch(err){
+            next(err);
+        }
+    }
 }
 
 export default new ProfessorController;
