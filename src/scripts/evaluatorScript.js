@@ -67,13 +67,6 @@ async function sendEmail(email) {
     });
 }
 
-const task = cron.schedule('* * * * *', () => {
-    verifyEvaluator();
-},
-    {
-        scheduled: true,
-        timezone: "America/Sao_Paulo"
-    }
-);
+const task = verifyEvaluator()
 
 export default task;
