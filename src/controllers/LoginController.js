@@ -7,6 +7,8 @@ import generateToken from '../middleware/jwtUtils.js';
 import transporter from '../middleware/emailConfig.js';
 import  crypto,{ timingSafeEqual } from 'crypto';
 import createHashWithSalt from "../middleware/hashWithSalt.js";
+import Admin from '../models/admin.js';
+import { ERROR_MESSAGE } from '../constants/Messages.js';
 
 class LoginController {
 
@@ -164,7 +166,6 @@ class LoginController {
 
                     return res.status(200).json(response);
                 }
-
                 if ("evaluator" === userLogin.accessType) {
                     const evaluator = await this.getEvaluatorByLoginId(userLogin._id);
 
@@ -184,10 +185,15 @@ class LoginController {
 
                     return res.status(200).json(response);
                 }
-
                 if("admin" === userLogin.accessType){
+                    const admin = await this.getAdminByLoginId(userLogin._id);
+
+                    if(admin === null){
+                        return res.status(404).json("ADMIN NOT FOUND");
+                    }
+
                     const tokenPayload = {
-                        userId: userLogin.id,
+                        userId: userLogin._id,
                         userName: userLogin.username,
                         email: userLogin.email,
                         accessType: userLogin.accessType,
@@ -196,6 +202,7 @@ class LoginController {
 
                     let response = {
                         accessType: 'admin',
+                        user: admin,
                         token: token
                     };
 
@@ -245,6 +252,22 @@ class LoginController {
             return evaluator;
         }
         catch (err) {
+            return null;
+        }
+    }
+
+    getAdminByLoginId = async (loginId) => {
+        try{
+            const admin = await Admin.findOne({loginId: loginId});
+
+            if(admin === null){
+                return null;
+            }
+
+            return admin;
+        }
+
+        catch (err){
             return null;
         }
     }
@@ -303,6 +326,7 @@ class LoginController {
             }
 
             const now = Date();
+
             if(now > user.passwordResetExpires){
                 return res.status(400).json({ message: 'Expired token, generate a new one'});
             }
@@ -316,6 +340,28 @@ class LoginController {
 
         } catch (error) {
             return res.status(400).json({ message: 'Cannot reset password, try again' + error});
+        }
+    }
+
+    firstAccess = async(req, res) => {
+        const {id} = req.params;
+        const {newPassword} = req.body;
+        try{
+            const newPasswordHash = await createHashWithSalt(newPassword);
+            const updatedLogin = await Login.findByIdAndUpdate(id, {password: newPasswordHash}, {new: true, runValidators: true})
+
+            if(!updatedLogin){
+                return res.status(404).json("User not found");
+            }
+
+            res.status(200).json({
+                message: 'Success updated password',
+                updatedLogin
+              });
+        }
+
+        catch(err){
+            return res.status(500).json(err);
         }
     }
 }

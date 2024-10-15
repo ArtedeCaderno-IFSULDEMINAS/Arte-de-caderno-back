@@ -3,6 +3,8 @@ import createHashWithSalt from "../middleware/hashWithSalt.js";
 import Admin from "../models/admin.js";
 import { ERROR_MESSAGE } from "../constants/Messages.js";
 import '../scripts/distributeDraws.js'
+import transporter from '../middleware/emailConfig.js';
+import crypto from 'crypto';
 
 class AdminController{
     listAdmin = async(req,res,next) => {
@@ -40,26 +42,28 @@ class AdminController{
         try{
             const 
             {
-                username, 
-                password,
-                email
+                cpf,
+                email,
+                name
             } = req.body;
 
-        if(!username|| !password|| !email){
-            return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED});
-        }
+            if(!cpf|| !name|| !email){
+                return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED});
+            }
 
-        const loginExists = await Login.findOne({username: username})
+            const loginExists = await Login.findOne({cpf: cpf})
 
-        if (loginExists !== null) {
-            return res
-              .status(400)
-              .json({ message: ERROR_MESSAGE.USER_ALREADY_EXISTS });
-          }
+            if (loginExists !== null) {
+                return res
+                .status(400)
+                .json({ message: ERROR_MESSAGE.USER_ALREADY_EXISTS });
+            }
         
-          const hashPassword = await createHashWithSalt(password);
+          const randomPassword = this.generateRandomPassword(8);
+          const hashPassword = await createHashWithSalt(randomPassword);
+
           const login = new Login({
-            username: username,
+            username: cpf,
             password: hashPassword,
             accessType: "admin",
             email: email,
@@ -67,14 +71,31 @@ class AdminController{
 
           const newLogin = await login.save();
 
+          async function sendEmail() {
+            const mailSent = await transporter.sendMail({
+                subject: 'Senha para primeiro acesso',
+                from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
+                to: email,
+                html: `<p>Sua senha inicial para acessar a plataforma é:</p>
+                <p style="color: DarkMagenta; font-size: 25px; letter-spacing: 2px;">
+                  <b>${randomPassword}</b>
+                </p>
+                <p><b>Ao fazer o primeiro acesso, você deve alterar a senha.</b>.</p>`
+
+            })};
+
+            sendEmail();
+
           if(newLogin == null){
            return res.status(400).json({ message: ERROR_MESSAGE.SAVE_DOCUMENT_ERROR});
           }
 
           const admin = new Admin({
-            username: username,
+            cpf: cpf,
             email: email,
-            loginId: newLogin._id
+            name: name,
+            loginId: newLogin._id,
+            firstAccess: true
           });
 
           const newAdmin = await admin.save();
@@ -139,6 +160,14 @@ class AdminController{
             return false;
         }
     }
+
+    generateRandomPassword(length) {
+        return crypto
+          .randomBytes(length)
+          .toString('base64')  
+          .slice(0, length)    
+          .replace(/[+/]/g, ''); 
+      }
 }
 
 export default new AdminController;

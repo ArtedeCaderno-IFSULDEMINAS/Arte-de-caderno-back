@@ -8,6 +8,7 @@ loginRouter.get('/login', LoginController.listLogin)
             .post('/login2fa', LoginController.Login2FAConfirmed)
             .post('/forgotPassword',LoginController.forgotPassword)
             .post('/resetPassword',LoginController.resetPassword)
+            .post('/firstAccess/:id', LoginController.firstAccess)
             
 
 export default loginRouter;
