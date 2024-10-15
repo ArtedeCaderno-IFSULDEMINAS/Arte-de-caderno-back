@@ -67,6 +67,3 @@ async function sendEmail(email) {
     });
 }
 
-const task = verifyEvaluator()
-
-export default task;
