@@ -3,6 +3,8 @@ import Draw from "../models/draw.js";
 import Evaluator from "../models/evaluator.js";
 import createHashWithSalt from "../middleware/hashWithSalt.js";
 import Login from "../models/login.js";
+import transporter from "../middleware/emailConfig.js";
+import  crypto from 'crypto';
 
 class EvaluatorController {
 
@@ -40,21 +42,50 @@ class EvaluatorController {
     }
 
     insertEvaluator = async (req, res, next) => {
-        const {name, email, cpf, password} = req.body;
+        const {name, email, cpf} = req.body;
+
+        if(!cpf|| !name|| !email){
+            return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED});
+        }
+
         const loginExists = await Login.findOne({username: cpf});
+
         if(loginExists !== null){
             return res.status(400).json({message: ERROR_MESSAGE.USER_ALREADY_EXISTS});
         }
 
-        const hashPassword = await createHashWithSalt(password);
+        const randomPassword = this.generateRandomPassword(8);
+        const hashPassword = await createHashWithSalt(randomPassword);
+
         const login = new Login({
             username: cpf,
             password: hashPassword,
-            accessType: 'evaluator'
+            accessType: 'evaluator',
+            firstAccess: true
         });
+
+        async function sendEmail() {
+            const mailSent = await transporter.sendMail({
+                subject: 'Senha para primeiro acesso',
+                from: 'Equipe Arte de Caderno <artedecaderno.if@gmail.com>',
+                to: email,
+                html: `<p>Sua senha inicial para acessar a plataforma é:</p>
+                <p style="color: DarkMagenta; font-size: 25px; letter-spacing: 2px;">
+                  <b>${randomPassword}</b>
+                </p>
+                <p><b>Ao fazer o primeiro acesso, você deve alterar a senha.</b>.</p>`
+
+            })};
+
+        sendEmail();
 
         try{
             const newLogin = await login.save();
+
+            if(newLogin == null){
+                return res.status(400).json({ message: ERROR_MESSAGE.SAVE_DOCUMENT_ERROR});
+               }
+
             const evaluator = new Evaluator({
                 name: name,
                 email: email,
@@ -83,6 +114,14 @@ class EvaluatorController {
             next(err);
         }
     }
+
+    generateRandomPassword(length) {
+        return crypto
+          .randomBytes(length)
+          .toString('base64')  
+          .slice(0, length)    
+          .replace(/[+/]/g, ''); 
+      }
 
 }
 

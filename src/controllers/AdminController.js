@@ -66,6 +66,7 @@ class AdminController{
             password: hashPassword,
             accessType: "admin",
             email: email,
+            firstAccess: true
           });
 
           const newLogin = await login.save();
@@ -93,8 +94,7 @@ class AdminController{
             cpf: cpf,
             email: email,
             name: name,
-            loginId: newLogin._id,
-            firstAccess: true
+            loginId: newLogin._id
           });
 
           const newAdmin = await admin.save();

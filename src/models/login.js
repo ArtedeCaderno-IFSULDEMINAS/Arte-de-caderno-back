@@ -10,7 +10,8 @@ const LoginSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
         tokenForgotPassword: { type: String, select: false },
         passwordResetExpires: { type: Date, select: false },
-        accessType: { type: String}
+        accessType: { type: String},
+        firstAccess: {type: Boolean, default: false}
     },
     {
         versionKey: false

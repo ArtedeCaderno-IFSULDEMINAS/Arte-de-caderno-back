@@ -348,7 +348,7 @@ class LoginController {
         const {newPassword} = req.body;
         try{
             const newPasswordHash = await createHashWithSalt(newPassword);
-            const updatedLogin = await Login.findByIdAndUpdate(id, {password: newPasswordHash}, {new: true, runValidators: true})
+            const updatedLogin = await Login.findByIdAndUpdate(id, {password: newPasswordHash, firstAccess: false}, {new: true, runValidators: true})
 
             if(!updatedLogin){
                 return res.status(404).json("User not found");
