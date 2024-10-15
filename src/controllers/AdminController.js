@@ -20,7 +20,7 @@ class AdminController{
     getAdminById = async(req, res, next) => {
         try{
             const {id} =req.params;
-            const admin = await Login.findById(id);
+            const admin = await Admin.findById(id);
 
             if(admin === null){
                 return res.status(404).json({message: 'Admin not found'});

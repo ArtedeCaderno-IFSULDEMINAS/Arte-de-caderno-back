@@ -5,6 +5,6 @@ import AdminController from '../controllers/AdminController.js'
 const adminRoute = express.Router();
 
 adminRoute.get('/admin/all', AdminController.listAdmin)
-        .get('/admin/id/:id', AdminController.getAdminById);
+        .get('/admin/:id', AdminController.getAdminById);
 
 export default adminRoute;
