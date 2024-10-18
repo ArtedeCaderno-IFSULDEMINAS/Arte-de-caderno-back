@@ -143,6 +143,7 @@ class LoginController {
                         accessType: 'professor',
                         user: professor,
                         token: token,
+                        firstAccess: userLogin.firstAccess,
                     };
 
                     return res.status(200).json(response);
@@ -161,7 +162,8 @@ class LoginController {
                     let response = {
                         accessType: 'student',
                         user: student,
-                        token: token
+                        token: token,
+                        firstAccess: userLogin.firstAccess,
                     };
 
                     return res.status(200).json(response);
@@ -180,7 +182,8 @@ class LoginController {
                     let response = {
                         accessType: 'evaluator',
                         user: evaluator,
-                        token: token
+                        token: token,
+                        firstAccess: userLogin.firstAccess,
                     };
 
                     return res.status(200).json(response);
@@ -203,7 +206,8 @@ class LoginController {
                     let response = {
                         accessType: 'admin',
                         user: admin,
-                        token: token
+                        token: token,
+                        firstAccess: userLogin.firstAccess,
                     };
 
                     return res.status(200).json(response);
