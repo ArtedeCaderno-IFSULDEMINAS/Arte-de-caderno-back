@@ -121,7 +121,64 @@ class EvaluatorController {
           .toString('base64')  
           .slice(0, length)    
           .replace(/[+/]/g, ''); 
-      }
+    }
+
+    getInfosByEvaluator= async (req, res, next)=>{
+        const {id} = req.params;
+
+        var numberOfDrawsPendent = 0;
+        var numberOfDrawsApproved = 0;
+        var numberOfDrawsReproved = 0;
+        var numberOfDrawsWithoutEvaluate = 0;
+        var numberOfDrawsWithEvaluate = 0;
+        var numberOfDraws = 0;
+        try{
+            const evaluator = await Evaluator.findById(id);
+
+            if(evaluator === null){
+                return res.status(404).json({message: ERROR_MESSAGE.EVALUATOR_NOT_FOUND})
+            }
+            numberOfDraws = evaluator.draws.length;
+
+            for(const drawId of evaluator.draws){
+                const draw = await Draw.findById(drawId);
+
+                if(draw.classified == "Pendente"){
+                    numberOfDrawsPendent ++;
+                }
+        
+                if(draw.classified == "Reprovado"){
+                    numberOfDrawsReproved ++;
+                }
+        
+                if(draw.classified == "Aprovado"){
+                    numberOfDrawsApproved ++;
+                }
+
+                if(draw.reviewFinished){
+                    numberOfDrawsWithEvaluate ++;
+                }
+
+                else{
+                    numberOfDrawsWithoutEvaluate++;
+                }
+            }
+
+            return res.status(200).json({
+                numberOfDrawsPendent :numberOfDrawsPendent,
+                numberOfDrawsApproved :numberOfDrawsApproved,
+                numberOfDrawsReproved :numberOfDrawsReproved,
+                numberOfDrawsWithoutEvaluate :numberOfDrawsWithoutEvaluate,
+                numberOfDrawsWithEvaluate :numberOfDrawsWithEvaluate,
+                numberOfDraws :numberOfDraws,
+            })
+        }
+        catch(err){
+            next(err);
+        }
+    }
+    
+
 
 }
 

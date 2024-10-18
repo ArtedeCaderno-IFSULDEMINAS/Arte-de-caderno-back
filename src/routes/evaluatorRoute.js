@@ -8,6 +8,7 @@ evaluatorRoute.use(authenticateTokenJwt);
 evaluatorRoute.get('/evaluator', EvaluatorController.listEvaluators)
         .get('/evaluator/:id', EvaluatorController.getEvaluatorById)
         .post('/insertEvaluator', EvaluatorController.insertEvaluator)
-        .get('/evaluator/:id/draws', EvaluatorController.getDrawsByEvaluator);
+        .get('/evaluator/:id/draws', EvaluatorController.getDrawsByEvaluator)
+        .get('/evaluator/getInfos/:id', EvaluatorController.getInfosByEvaluator)
         
 export default evaluatorRoute;
