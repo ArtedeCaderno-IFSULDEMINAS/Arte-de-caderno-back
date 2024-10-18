@@ -289,6 +289,7 @@ class LoginController {
                 '$set': {
                     tokenForgotPassword: tokenForgotPassword,
                     passwordResetExpires: now,
+                    firstAccess: false,
                 }
             });
             //console.log(tokenForgotPassword,now);
