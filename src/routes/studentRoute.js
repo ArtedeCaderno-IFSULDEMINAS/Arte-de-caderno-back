@@ -10,6 +10,7 @@ studentRoute
     .get("/student/:id", StudentController.getStudentById)
     .get("/student/:id/draws", StudentController.getDrawsByStudent)
     .post ("/student/update/:id", StudentController.updateStudent)
+    .get("/student/getInfos/:id", StudentController.getInfoByStudent)
     .delete("/student/:id", StudentController.deleteStudent);
 
 export default studentRoute;

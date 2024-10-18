@@ -159,6 +159,51 @@ class StudentController {
       next(err);
     }
   };
+
+  getInfoByStudent = async (req, res, next) => {
+    const {id} = req.params;
+
+    try{
+      const student = await Student.findById(id);
+      if(student === null){
+        return res.status(400).json({message: ERROR_MESSAGE.STUDENT_NOT_FOUND});
+      }
+
+      var numberOfDraws = student.drawsId.length;
+
+      var numberOfDrawsPendent = 0;
+      var numberOfDrawsApproved = 0;
+      var numberOfDrawsReproved = 0;
+
+      for (const drawId of student.drawsId){
+        const draw = await Draw.findById(drawId);
+
+        if(draw.classified == "Pendente"){
+            numberOfDrawsPendent ++;
+        }
+
+        if(draw.classified == "Reprovado"){
+            numberOfDrawsReproved ++;
+        }
+
+        if(draw.classified == "Aprovado"){
+            numberOfDrawsApproved ++;
+        }
+      }
+
+      res.status(200).json({
+        "numberOfDraws": numberOfDraws,
+        "numberOfDrawsApproved": numberOfDrawsApproved,
+        "numberOfDrawsPendent": numberOfDrawsPendent,
+        "numberOfDrawsReproved": numberOfDrawsReproved
+      });
+
+
+    }
+    catch (err){
+      next(err);
+    }
+  }
 }
 
 export default new StudentController();
