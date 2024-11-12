@@ -19,7 +19,7 @@ const DrawSchema = new mongoose.Schema(
         classified: {type: String, required: false, default: "Pendente"},
         note: {type: String, required: false},
         author: {type: mongoose.Schema.Types.ObjectId, ref: "student", required: true},
-        novice: {type: String, required: true}
+        notice: {type: mongoose.Schema.Types.ObjectId, ref: "notices", required: true}
     },
     {
         versionKey: false

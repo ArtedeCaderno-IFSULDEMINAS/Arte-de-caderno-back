@@ -4,6 +4,7 @@ import Student from "../models/student.js";
 import { ERROR_MESSAGE } from "../constants/Messages.js";
 import Log from "../models/log.js";
 import { LOG_TYPES } from "../constants/LogTypes.js";
+import Notice from "../models/notice.js";
 
 class DrawController {
 
@@ -83,12 +84,18 @@ class DrawController {
                 return res.status(400).json({ message: ERROR_MESSAGE.STUDENT_ALREADY_HAS_THREE_DRAWS});
             }
 
+            const notice = await Notice.findOne({active: true});
+
+            if(notice === null){
+                return res.status(400).json({message: "NENHUM EDITAL ATIVO"});
+            }
+
             const draw = new Draw({
                 title: title,
                 category: category,
                 author: author,
                 linkImage: req.files.image[0].filename,
-                novice: "2024_01"
+                notice: notice._id
             });
 
             await draw.save();
@@ -96,6 +103,10 @@ class DrawController {
             student.drawsId.push(draw._id);
 
             await student.save();
+
+            notice.draws.push(draw._id);
+
+            await notice.save();
 
             return res.status(201).json(draw);
         }
