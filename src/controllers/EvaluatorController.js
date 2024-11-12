@@ -185,8 +185,6 @@ class EvaluatorController {
         }
     }
     
-
-
 }
 
 export default new EvaluatorController;
