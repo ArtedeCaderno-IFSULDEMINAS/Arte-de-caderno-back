@@ -13,11 +13,12 @@ export const ERROR_MESSAGE = {
     DELETED: 'Deleted',
     ALL_FIELDS_REQUIRED: 'All fields are required',
     SCHOOL_NOT_FOUND: 'School not found',
-    SAVE_DOCUMENT_ERROR: 'Error at save documents in database'
+    SAVE_DOCUMENT_ERROR: 'Error at save documents in database',
+    NOVICE_NOT_FOUND: 'Novice not found'
 }
 
 export const EVENT_MESSAGES = {
     STUDENT_CREATED: 'Student created',
     PROFESSOR_CREATED: 'Professor created',
-    SCHOOL_CREATED: 'School created',
+    SCHOOL_CREATED: 'School created'
 }
