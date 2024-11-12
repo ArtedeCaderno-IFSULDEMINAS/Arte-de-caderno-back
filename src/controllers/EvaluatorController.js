@@ -107,8 +107,15 @@ class EvaluatorController {
             if(evaluator === null){
                 return res.status(404).json({message: ERROR_MESSAGE.EVALUATOR_NOT_FOUND});
             }
-            const draws = await Draw.find({evaluatorId: id});
-            res.status(200).json(draws);
+            const draws = evaluator.draws;
+
+            const resDraws = [];
+            for (const draw of draws){
+                const findDraw = await Draw.findById(draw);
+
+                resDraws.push(findDraw);
+            }
+            return res.status(200).json(resDraws)
         }
         catch(err){
             next(err);
