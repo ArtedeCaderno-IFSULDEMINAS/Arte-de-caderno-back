@@ -10,6 +10,7 @@ noticeRoute.get('/notice', NoticeController.listAllNotices)
             .post('/notice', NoticeController.insertNotice)
             .post('/notice/:id', NoticeController.updateNotice)
             .get('/notice/:id', NoticeController.getNoticeById)
+            .get('/notice/active', NoticeController.getActiveNotice)
 
 
 export default noticeRoute;

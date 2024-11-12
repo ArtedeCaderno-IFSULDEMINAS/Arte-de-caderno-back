@@ -93,6 +93,21 @@ class NoticeController{
         }
     }
 
+    getActiveNotice = async (req, res, next) => {
+        try{
+            const notice = Notice.findOne({active: true});
+
+            if(notice === null){
+                return res.status(404).json({message: "NOTICE NOT FOUND"})
+            }
+
+            return res.status(200).json(notice);
+        }
+
+        catch(err){
+            next(err);
+        }
+    }
     
 }
 
