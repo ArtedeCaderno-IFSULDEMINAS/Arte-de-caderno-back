@@ -12,6 +12,6 @@ professorRoute.get('/professor', ProfessorController.listProfessor)
     .post('/professor/student/:id', ProfessorController.insertStudentByProfessorId)
     .post('/professor/update/:id', ProfessorController.updateProfessor) //em teste
     .delete('/professor/:id', ProfessorController.deleteProfessor)
-    .post('/professor/getInfos/:id', ProfessorController.getInfoByProfessorId);
+    .get('/professor/getInfos/:id', ProfessorController.getInfoByProfessorId);
 
 export default professorRoute;
