@@ -5,6 +5,7 @@ import { ERROR_MESSAGE } from "../constants/Messages.js";
 import Log from "../models/log.js";
 import { LOG_TYPES } from "../constants/LogTypes.js";
 import Notice from "../models/notice.js";
+import mongoose from "mongoose";
 
 class DrawController {
 
@@ -95,7 +96,16 @@ class DrawController {
                 category: category,
                 author: author,
                 linkImage: req.files.image[0].filename,
-                notice: notice._id
+                notice: notice._id,
+
+                review: data.review ? data.review.map(e => ({
+                    evaluator: mongoose.Types.ObjectId(e.evaluator),
+                    numberOfAlertsEvaluator: e.numberOfAlertsEvaluator || 0,
+                    score: e.score || null,
+                    note: e.note || null,
+                    date: e.date || null,
+                    finished: e.finished || false
+                })) : []
             });
 
             await draw.save();
@@ -171,7 +181,7 @@ class DrawController {
             if(score < 0 || score > 100){
                 return res.status(400).json({ message: ERROR_MESSAGE.SCORE_MUST_BE_BETWEEN_0_AND_100});
             }
-            const filter = { _id: id, "review.evaluator": evaluatorId };
+            const filter = { _id: id, "review.evaluator": new mongoose.Types.ObjectId(evaluatorId) };
             const update = { "review.$.score": score, "review.$.note": note, "review.$.date": Date.now(), "review.$.finished": true };
             const draw = await Draw.findOneAndUpdate(filter, update, { new: true });
             if(draw === null){
