@@ -153,7 +153,7 @@ class DrawController {
             res.status(200).json(draw);
             Log.create({
                 message: `Draw ${draw.id} desclassified`,
-                stack: "",
+                stack: "draw.desclassified",
                 date: new Date(),
                 type: LOG_TYPES.INFO
             });
@@ -187,13 +187,13 @@ class DrawController {
             if(draw === null){
                 return res.status(404).json({ message: ERROR_MESSAGE.DRAW_NOT_FOUND});
             }
-            Log.create({
+            const log = new Log ({
                 message: `Draw ${draw.id} evaluated`,
-                stack: "",
+                stack: "draw.evaluate",
                 date: new Date(),
                 type: LOG_TYPES.INFO
             });
-            await Log.save();
+            await log.save();
             res.status(200).json(draw);
         }
         catch (err) {
@@ -241,13 +241,13 @@ class DrawController {
                 }
 
             }
-            Log.create({
+            const log = new Log({
                 message: "Draws distributed",
                 stack: "",
                 date: new Date(),
                 type: LOG_TYPES.INFO
             });
-            await Log.save();
+            await log.save();
             res.status(200).json({ message: "Draws distributed" });
 
         }
