@@ -9,6 +9,7 @@ const EvaluatorSchema = new mongoose.Schema(
         start_date: { type: String},
         final_date: { type: String},
         draws: [{type: mongoose.Schema.Types.ObjectId, ref: 'draw'}],
+        reviewsId: [{type: mongoose.Schema.Types.ObjectId, ref: 'review'}],
         loginId: {type: mongoose.Schema.Types.ObjectId, ref: 'login'},
     },
     {

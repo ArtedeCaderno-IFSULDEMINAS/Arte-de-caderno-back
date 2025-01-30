@@ -94,7 +94,9 @@ class AdminController{
             cpf: cpf,
             email: email,
             name: name,
-            loginId: newLogin._id
+            loginId: newLogin._id,
+            drawsDoubleCheck: [],
+            reviews: []
           });
 
           const newAdmin = await admin.save();

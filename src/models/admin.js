@@ -6,7 +6,9 @@ const AdminSchema = new mongoose.Schema(
         cpf: {type: String},
         email: {type: String},
         name: {type: String},
-        loginId: {type: mongoose.Schema.Types.ObjectId, ref: 'login'}
+        loginId: {type: mongoose.Schema.Types.ObjectId, ref: 'login'},
+        drawsDoubleCheck: [{type: mongoose.Schema.Types.ObjectId, ref: 'draw'}],
+        reviews: [{type: mongoose.Schema.Types.ObjectId, ref: 'review'}]
     },
     {
         versionKey: false

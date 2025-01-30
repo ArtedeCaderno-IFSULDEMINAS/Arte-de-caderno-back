@@ -108,6 +108,21 @@ class NoticeController{
             next(err);
         }
     }
+
+    setActiveNotice = async (req, res, next) => {
+        try{
+            const {id} = req.params;
+
+            const notice = await Notice.findOne({active: true});
+
+            if(notice !== null){
+                return res.status(400).json({message: "CANNOT SET A NOTICE AS ACTIVE WHILE EXISTING OTHER ACTIVE NOTICE."})
+            }
+        }
+        catch(err){
+            next(err);
+        }
+    }
     
 }
 

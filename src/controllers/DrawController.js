@@ -1,11 +1,7 @@
 import Draw from "../models/draw.js";
-import Evaluator from "../models/evaluator.js";
 import Student from "../models/student.js";
 import { ERROR_MESSAGE } from "../constants/Messages.js";
-import Log from "../models/log.js";
-import { LOG_TYPES } from "../constants/LogTypes.js";
 import Notice from "../models/notice.js";
-import mongoose from "mongoose";
 
 class DrawController {
 
@@ -97,15 +93,7 @@ class DrawController {
                 author: author,
                 linkImage: req.files.image[0].filename,
                 notice: notice._id,
-
-                review: data.review ? data.review.map(e => ({
-                    evaluator: mongoose.Types.ObjectId(e.evaluator),
-                    numberOfAlertsEvaluator: e.numberOfAlertsEvaluator || 0,
-                    score: e.score || null,
-                    note: e.note || null,
-                    date: e.date || null,
-                    finished: e.finished || false
-                })) : []
+                review: []
             });
 
             await draw.save();
@@ -138,135 +126,6 @@ class DrawController {
         catch (err) {
             next(err);
         }
-    }
-
-    desclassifiedDraw = async (req, res, next) => {
-        const { id } = req.params;
-        const { note } = req.body;
-        try {
-            const filter = { _id: id };
-            const update = { classified: false, note: note, reviewFinished: true };
-            const draw = await Draw.findOneAndUpdate(filter, update, { new: true });
-            if(draw === null){
-                return res.status(404).json({ message: ERROR_MESSAGE.DRAW_NOT_FOUND});
-            }
-            res.status(200).json(draw);
-            Log.create({
-                message: `Draw ${draw.id} desclassified`,
-                stack: "draw.desclassified",
-                date: new Date(),
-                type: LOG_TYPES.INFO
-            });
-            await Log.save();
-        }
-        catch (err) {
-            next(err);
-        }
-    }
-
-    evaluateDraw = async (req, res, next) => {
-        const { id } = req.params;
-        const { score, note, evaluatorId } = req.body;
-        try {
-            if(evaluatorId === null){
-                return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED });
-            }
-            const evaluator = await Evaluator.findById(evaluatorId);
-            if(evaluator === null){
-                return res.status(404).json({ message: ERROR_MESSAGE.EVALUATOR_NOT_FOUND});
-            }
-            if(note === null){
-                return res.status(400).json({ message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED });
-            }
-            if(score < 0 || score > 100){
-                return res.status(400).json({ message: ERROR_MESSAGE.SCORE_MUST_BE_BETWEEN_0_AND_100});
-            }
-            const filter = { _id: id, "review.evaluator": new mongoose.Types.ObjectId(evaluatorId) };
-            const update = { "review.$.score": score, "review.$.note": note, "review.$.date": Date.now(), "review.$.finished": true };
-            const draw = await Draw.findOneAndUpdate(filter, update, { new: true });
-            if(draw === null){
-                return res.status(404).json({ message: ERROR_MESSAGE.DRAW_NOT_FOUND});
-            }
-            const log = new Log ({
-                message: `Draw ${draw.id} evaluated`,
-                stack: "draw.evaluate",
-                date: new Date(),
-                type: LOG_TYPES.INFO
-            });
-            await log.save();
-            res.status(200).json(draw);
-        }
-        catch (err) {
-            next(err);
-        }
-    }
-
-    distributeDraws = async (req, res, next) => {
-        try {
-            const draws = await Draw.find();
-            const evaluators = await Evaluator.find();
-
-            evaluators.sort(() => Math.random() - 0.5);
-            draws.sort(() => Math.random() - 0.5);
-
-            const evaluators1 = evaluators.slice(0, evaluators.length / 3);
-            const evaluators2 = evaluators.slice(evaluators.length / 3, 2 * evaluators.length / 3);
-            const evaluators3 = evaluators.slice(2 * evaluators.length / 3, evaluators.length);
-
-            const maxDrawsGroup1 = Math.ceil(draws.length / evaluators1.length);
-            const maxDrawsGroup2 = Math.ceil(draws.length / evaluators2.length);
-            const maxDrawsGroup3 = Math.ceil(draws.length / evaluators3.length);
-
-            for (let i = 0; i < draws.length; i++) {
-
-                for(let j=0; j<=evaluators1.length; j++){
-                    if(await this.verifyEvaluator(evaluators1[j], maxDrawsGroup1)){
-                        await this.updateDrawAndEvaluator(draws[i]._id, evaluators1[j]._id)
-                        break;
-                    }
-                }
-
-                for(let j=0; j<=evaluators2.length; j++){
-                    if(await this.verifyEvaluator(evaluators2[j], maxDrawsGroup2)){
-                        await this.updateDrawAndEvaluator(draws[i]._id, evaluators2[j]._id)
-                        break;
-                    }
-                }
-
-                for(let j=0; j<=evaluators3.length; j++){
-                    if(await this.verifyEvaluator(evaluators3[j], maxDrawsGroup3)){
-                        await this.updateDrawAndEvaluator(draws[i]._id, evaluators3[j]._id)
-                        break;
-                    }
-                }
-
-            }
-            const log = new Log({
-                message: "Draws distributed",
-                stack: "",
-                date: new Date(),
-                type: LOG_TYPES.INFO
-            });
-            await log.save();
-            res.status(200).json({ message: "Draws distributed" });
-
-        }
-        catch (err) {
-            next(err);
-        }
-    }
-
-    verifyEvaluator =async (evaluator, maxDraws) => {
-        const updateEvaluator = await Evaluator.findById(evaluator._id);
-        if (updateEvaluator.draws.length >= maxDraws) {
-            return false;
-        }
-        return true;
-    }
-
-    updateDrawAndEvaluator = async (drawId, evaluatorId) => {
-        await Draw.findOneAndUpdate({ _id: drawId }, { $push: { review: { evaluator: evaluatorId } } });
-        await Evaluator.findOneAndUpdate({ _id: evaluatorId}, { $push: { draws: drawId} });
     }
 }
 
