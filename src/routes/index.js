@@ -11,6 +11,7 @@ import evaluatorRoute from './evaluatorRoute.js';
 import adminRoute from './adminRoute.js';
 import noticeRoute from './noticeRoute.js';
 import reviewRoute from './reviewRoute.js';
+import enrollmentRoute from './enrollmentRoute.js'
 
 const routes = (app) => {
   app.route('/').get((req, res) => {
@@ -30,7 +31,8 @@ const routes = (app) => {
     evaluatorRoute,
     adminRoute,
     noticeRoute,
-    reviewRoute
+    reviewRoute,
+    enrollmentRoute
   )
 }
 
