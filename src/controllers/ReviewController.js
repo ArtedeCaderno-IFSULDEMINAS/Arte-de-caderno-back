@@ -105,6 +105,23 @@ class ReviewController {
             next(err);
         }
     }
+
+    findReview = async (req, res, next) =>{
+        try{
+            const {evaluatorId, drawId} = req.body;
+
+            if(evaluatorId == null || drawId == null){
+                return res.status(400).json({message: "Cannot have null fields"});
+            }
+
+            const review = await Review.findOne({evaluatorId: evaluatorId, drawId: drawId});
+
+            return res.status(200).json(review);
+        }
+        catch (err){
+            next(err);
+        }
+    }
 }
 
 export default new ReviewController();

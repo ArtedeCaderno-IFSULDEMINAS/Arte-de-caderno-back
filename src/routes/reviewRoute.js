@@ -8,6 +8,7 @@ reviewRoute.use(authenticateTokenJwt);
 reviewRoute.post('/review/:id', ReviewController.evaluateDraw)
     .get('/review', ReviewController.listReviews)
     .get('/review/draw/:id', ReviewController.findDrawReviews)
-    .get ('/review/evaluator/:id', ReviewController.findEvaluatorReviews);
+    .get ('/review/evaluator/:id', ReviewController.findEvaluatorReviews)
+    .post('/review/find', ReviewController.findReview);
 
 export default reviewRoute;
