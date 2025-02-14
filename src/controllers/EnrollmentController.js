@@ -1,18 +1,37 @@
 import Enrollment from "../models/enrollment.js";
+import multer from "multer";
+import path from "path";
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
 
 class EnrollmentController{
     insertAcceptEnrollment = async(req, res, next) => {
         try{
             const { userId } = req.body;
             const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+            const signedTermUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-            await Enrollment.findOneAndUpdate(
+            const updatedEnrollment = await Enrollment.findOneAndUpdate(
                 { userId: userId },
-                { termsAccepted: true, acceptanceDate: new Date(), acceptanceIp: ip },
+                { 
+                    termsAccepted: true, 
+                    acceptanceDate: new Date(), 
+                    acceptanceIp: ip,
+                    ...(signedTermUrl && { signedTermUrl }) // Apenas atualiza se o arquivo for enviado
+                },
                 { new: true, upsert: true }
-              );
+            );
 
-              res.status(200).json({ message: "Terms accepted successfully" });
+            res.status(200).json({ message: "Terms accepted successfully", enrollment: updatedEnrollment });
         }
 
         catch(err){
@@ -53,4 +72,5 @@ class EnrollmentController{
     }
 }
 
+export const uploadMiddleware = upload.single("signedTerm");
 export default new EnrollmentController;
