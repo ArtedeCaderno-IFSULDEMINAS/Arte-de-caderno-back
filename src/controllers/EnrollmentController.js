@@ -16,17 +16,17 @@ const upload = multer({ storage });
 class EnrollmentController{
     insertAcceptEnrollment = async(req, res, next) => {
         try{
-            const { userId } = req.body;
+            const { studentId } = req.body;
             const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
             const signedTermUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
             const updatedEnrollment = await Enrollment.findOneAndUpdate(
-                { userId: userId },
+                { studentIdId: studentId },
                 { 
                     termsAccepted: true, 
                     acceptanceDate: new Date(), 
                     acceptanceIp: ip,
-                    ...(signedTermUrl && { signedTermUrl }) // Apenas atualiza se o arquivo for enviado
+                    ...(signedTermUrl && { signedTermUrl })
                 },
                 { new: true, upsert: true }
             );

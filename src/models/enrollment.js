@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const EnrollmentSchema = new mongoose.Schema({
     id: {type: String},
-    userId: {type: mongoose.Schema.Types.ObjectId, ref: "logins", required: true},
+    studentId: {type: mongoose.Schema.Types.ObjectId, ref: "student", required: true},
     termsAccepted: { type: Boolean, default: false },
     acceptanceDate: { type: Date },
     acceptanceIp: { type: String },
