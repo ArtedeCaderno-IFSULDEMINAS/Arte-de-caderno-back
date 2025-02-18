@@ -77,14 +77,21 @@ class DrawController {
                 return res.status(404).json({ message: ERROR_MESSAGE.STUDENT_NOT_FOUND});
             }
 
-            if(student.drawsId.length >= 3){
-                return res.status(400).json({ message: ERROR_MESSAGE.STUDENT_ALREADY_HAS_THREE_DRAWS});
-            }
-
             const notice = await Notice.findOne({active: true});
 
             if(notice === null){
                 return res.status(400).json({message: "NENHUM EDITAL ATIVO"});
+            }
+
+            const now = new Date();
+
+            // Verifica se a data atual está dentro do período de submissão
+            if (now < new Date(notice.start_submit_date) || now > new Date(notice.end_submit_date)) {
+                return res.status(400).json({ message: "Submissão não permitida. Fora do período válido." });
+            }
+
+            if(student.drawsId.length >= notice.maxNumberOfDrawsPerStudent){
+                return res.status(400).json({ message: ERROR_MESSAGE.STUDENT_ALREADY_HAS_THREE_DRAWS});
             }
 
             const draw = new Draw({

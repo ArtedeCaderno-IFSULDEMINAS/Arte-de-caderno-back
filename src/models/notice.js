@@ -10,7 +10,9 @@ const NoticeSchema = new mongoose.Schema(
         start_evaluate_date: {type: Date, required: true},
         end_evaluate_date: {type: Date, required: true},
         notice_file: { type: String, required: true },
-        draws: [{type: mongoose.Schema.Types.ObjectId, ref: 'draw'}]
+        draws: [{type: mongoose.Schema.Types.ObjectId, ref: 'draw'}],
+        days_to_distribute: { type: Number, required: true },
+        maxNumberOfDrawsPerStudent: {type: Number, required: true}
     }
 )
 

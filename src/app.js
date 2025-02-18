@@ -4,6 +4,7 @@ import routes from './routes/index.js';
 import cors from 'cors';
 import errorHandler from './middleware/errorHandler.js';
 import handler404 from './middleware/handler404.js';
+import './scripts/scheduleEvaluationTask.js'
 
 dbConnect();
 

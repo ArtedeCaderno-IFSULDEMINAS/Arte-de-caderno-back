@@ -48,9 +48,10 @@ class StudentController {
       email,
       schoolId,
       password,
+      shirtSize
     } = req.body;
 
-    if(!name || !date_of_birth || !cpf || !phone || !address || !city || !uf || !email || !schoolId || !password){
+    if(!name || !date_of_birth || !cpf || !phone || !address || !city || !uf || !email || !schoolId || !password || !shirtSize){
       return res
         .status(400)
         .json({message: ERROR_MESSAGE.ALL_FIELDS_REQUIRED})
@@ -87,6 +88,8 @@ class StudentController {
         loginId: newLogin._id,
         email: email,
         schoolId: schoolId,
+        shirtSize: shirtSize,
+        createdAt: new Date.now()
       });
       const newStudent = await student.save();
       res.status(201).json(newStudent);
